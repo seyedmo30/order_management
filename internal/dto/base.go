@@ -16,3 +16,11 @@ type BaseOrder struct {
 func (BaseOrder) TableName() string {
 	return "orders"
 }
+
+
+
+type BaseCreateOrderRequest struct {
+	OrderID        string `json:"order_id" validate:"required"`
+	Priority       string `json:"priority" validate:"required,oneof=High Normal"`
+	ProcessingTime int    `json:"processing_time" validate:"required,min=1"`
+}
