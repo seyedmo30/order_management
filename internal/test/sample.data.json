@@ -10,9 +10,7 @@
             "priority": "High",
             "status": "Pending",
             "processing_time": 30,
-            "lock": false,
-            "created_at": "2025-01-25T15:30:00Z",
-            "updated_at": "2025-01-25T15:30:00Z"
+            "lock": false
           },
 
           "GetOrderByIDRepositoryResponse" : "order-001",
@@ -21,8 +19,7 @@
 
           "UpdateOrderByIDRepositoryRequest":{
             "id": "order-001",
-            "status": "Success",
-            "lock": true
+            "status": "Success"
           }
 
           

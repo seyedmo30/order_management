@@ -26,8 +26,31 @@ func (r *orderManagementRepository) GetOrderByID(ctx context.Context, orderID st
 func (r *orderManagementRepository) UpdateOrderByID(ctx context.Context, params dto.UpdateOrderByIDRepositoryRequest) (err error) {
 	err = db.WithContext(ctx).
 		Table("orders").
-		Where("id = ?", params.ID).
 		Updates(&params).Error
+	return
+}
+
+func (r *orderManagementRepository) LockOrderOptimistic(ctx context.Context, params dto.UpdateOrderByIDRepositoryRequest) (err error) {
+	result := db.WithContext(ctx).
+		Table("orders").
+		Where("lock = ?", false).
+		Where("order_id = ?", params.OrderID).
+		Update("lock", true)
+
+	if err := result.Error; err != nil {
+		return err
+	}
+
+	if result.RowsAffected == 0 {
+
+		err = &pkg.ErrorCustom{
+			Code:    404,
+			Message: pkg.NotFoundRepositoryMessage,
+		}
+
+		return err
+	}
+
 	return
 }
 
@@ -35,7 +58,7 @@ func (r *orderManagementRepository) GetNextHighPriorityReadyOrder(ctx context.Co
 	err = db.WithContext(ctx).
 		Table("orders").
 		Where("status = ? AND priority = ? AND lock = ?", pkg.StatusOrderManagementPending, pkg.StatusOrderManagementHigh, false).
-		Order("created_at ASC").
+		Order("priority DESC, created_at ASC").
 		First(&res).Error
 	return
 }

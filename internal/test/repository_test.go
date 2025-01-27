@@ -8,6 +8,7 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/seyedmo30/order_management/internal/config"
+	"github.com/seyedmo30/order_management/internal/dto"
 	"github.com/seyedmo30/order_management/internal/interfaces"
 	"github.com/seyedmo30/order_management/internal/repository"
 	"github.com/stretchr/testify/suite"
@@ -71,15 +72,18 @@ func (p *RepositoryTestSuit) Test1GetOrderByID() {
 
 }
 
-func (p *RepositoryTestSuit) Test2GetNextHighPriorityReadyOrder() {
+func (p *RepositoryTestSuit) Test2GetNextHighPriorityReadyOrderAndLock() {
 
-	
 	res, err := p.repositoryService.GetNextHighPriorityReadyOrder(p.ctx)
 
 	p.NoError(err)
 
-	fmt.Println(res)
+	fmt.Printf("%+v \n", res)
 
+	updateOrderByIDRepositoryRequest := dto.UpdateOrderByIDRepositoryRequest{BaseOrder: res.BaseOrder}
+
+	err = p.repositoryService.LockOrderOptimistic(p.ctx, updateOrderByIDRepositoryRequest)
+	p.NoError(err)
 
 }
 
@@ -96,10 +100,17 @@ func (p *RepositoryTestSuit) Test3UpdateOrderByID() {
 }
 
 
-// TestFinalGetOrderByID is a test function that retrieves an order by its ID.
-// It uses the GetSampleData function to obtain sample data, and then calls the
-// GetOrderByID method of the repositoryService to retrieve the order.
-// The retrieved order is then printed to the console.
+
+func (p *RepositoryTestSuit) Test4ListAggregateOrderReport() {
+
+	res, err := p.repositoryService.ListAggregateOrderReport(p.ctx)
+
+	p.NoError(err)
+
+	fmt.Printf("%+v \n", res)
+}
+
+
 func (p *RepositoryTestSuit) TestFinalGetOrderByID() {
 	sm, err := GetSampleData()
 	p.NoError(err)
@@ -113,3 +124,4 @@ func (p *RepositoryTestSuit) TestFinalGetOrderByID() {
 	fmt.Println(res)
 
 }
+
