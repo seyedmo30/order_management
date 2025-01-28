@@ -10,7 +10,16 @@ import (
 	"github.com/seyedmo30/order_management/internal/process"
 	"github.com/seyedmo30/order_management/internal/repository"
 	"github.com/seyedmo30/order_management/internal/usecase"
+	"github.com/go-playground/validator/v10"
 )
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	return cv.validator.Struct(i)
+}
 
 func main() {
 	// Load configuration
@@ -42,6 +51,7 @@ func main() {
 
 	// Set up Echo instance
 	e := echo.New()
+	e.Validator = &CustomValidator{validator: validator.New()}
 
 	// Initialize handlers
 	orderHandler := http.NewOrderHandler(usecase)
@@ -49,5 +59,5 @@ func main() {
 	// Register routes
 	http.RegisterRoutes(e, orderHandler)
 	// Start the server
-	log.Fatal(e.Start(":8080"))
+	log.Fatal(e.Start(":8099"))
 }

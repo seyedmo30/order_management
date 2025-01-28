@@ -18,7 +18,7 @@ func (r *orderManagementRepository) CreateOrder(ctx context.Context, params dto.
 func (r *orderManagementRepository) GetOrderByID(ctx context.Context, orderID string) (res dto.GetOrderByIDRepositoryResponse, err error) {
 	err = db.WithContext(ctx).
 		Table("orders").
-		Where("id = ?", orderID).
+		Where("order_id = ?", orderID).
 		First(&res).Error
 	return
 }
@@ -73,7 +73,8 @@ func (r *orderManagementRepository) LockOrderOptimistic(ctx context.Context, par
 func (r *orderManagementRepository) GetNextHighPriorityReadyOrder(ctx context.Context) (res dto.GetNextHighPriorityReadyOrderRepositoryResponse, err error) {
 	err = db.WithContext(ctx).
 		Table("orders").
-		Where("status = ? AND priority = ? AND lock = ?", pkg.StatusOrderManagementPending, pkg.StatusOrderManagementHigh, false).
+		Where("lock = ?", false).
+		Where("status = ?", pkg.StatusOrderManagementPending).
 		Order("priority DESC, created_at ASC").
 		First(&res).Error
 	return

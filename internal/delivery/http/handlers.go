@@ -22,6 +22,9 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "invalid request"})
 	}
 
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"status": "Failed", "error": err.Error()})
+	}
 	err := h.usecase.CreateOrder(c.Request().Context(), dto.CreateOrderUsecaseRequest{BaseCreateOrderRequest: req.BaseCreateOrderRequest})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
@@ -31,6 +34,25 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 }
 
 func (h *OrderHandler) GetOrders(c echo.Context) error {
-	// Implement fetching orders
-	return c.JSON(http.StatusOK, echo.Map{"orders": "[]dto.Order{}"})
+	// Retrieve the order ID from the URL parameter
+	orderID := c.Param("order_id")
+	if orderID == "" {
+		// Handle case where order_id is missing
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "order_id is required"})
+	}
+
+	// Call the use case to fetch the order details
+	order, err := h.usecase.GetOrder(c.Request().Context(), orderID)
+	if err != nil {
+		// Handle errors (e.g., order not found, internal error)
+		return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+	}
+
+	// Return the order details in the response
+	return c.JSON(http.StatusOK, echo.Map{
+		"order_id":        order.OrderID,
+		"priority":        order.Priority,
+		"processing_time": order.ProcessingTime,
+		"status":          order.Status,
+	})
 }

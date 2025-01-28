@@ -48,9 +48,15 @@ func NewOrderManagementRepository(config config.DatabaseConfig) *orderManagement
 func SetupDB(config config.DatabaseConfig) (*gorm.DB, error) {
 
 	// Open the underlying SQL connection (SQLite doesn't need credentials)
-	sqlDb, err := sql.Open("sqlite3", ":memory:")
+	sqlDb, err := sql.Open("sqlite3", "file::memory:?cache=shared&mode=rw")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open SQL connection: %w", err)
+	}
+
+	// Set PRAGMA journal_mode to WAL
+	_, err = sqlDb.Exec("PRAGMA journal_mode=WAL;")
+	if err != nil {
+		return nil, fmt.Errorf("failed to set journal_mode to WAL: %w", err)
 	}
 
 	// Ping the database to verify connection
@@ -75,6 +81,11 @@ func SetupDB(config config.DatabaseConfig) (*gorm.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open GORM connection: %w", err)
 	}
+
+	// Set connection pool parameters
+	sqlDb.SetMaxOpenConns(10)
+	sqlDb.SetMaxIdleConns(5)
+	sqlDb.SetConnMaxLifetime(0)
 
 	// Auto-migrate the BaseOrder model
 	err = db.AutoMigrate(&dto.BaseOrder{})

@@ -3,6 +3,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -135,6 +136,21 @@ func (u *orderUseCase) ListAggregateOrderReport(ctx context.Context) error {
 	}
 }
 
+func (u *orderUseCase) GetOrder(ctx context.Context, orderID string) (res dto.GetOrderUsecaseResponse, err error) {
+	// Call the repository method to fetch the order by ID
+	repoRes, err := u.repo.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return dto.GetOrderUsecaseResponse{}, fmt.Errorf("failed to get order: %w", err)
+	}
+
+	// Map repository response to use case response (you can add more transformation logic here if needed)
+	res = dto.GetOrderUsecaseResponse{
+		BaseOrder: repoRes.BaseOrder,
+	}
+
+	return res, nil
+}
+
 // processSingleOrder handles fetching, locking, and processing a single order.
 func (u *orderUseCase) processSingleOrder(ctx context.Context) error {
 	// Get the next high-priority ready order
@@ -146,6 +162,16 @@ func (u *orderUseCase) processSingleOrder(ctx context.Context) error {
 
 	// Log the order being processed
 	logger.Info("Processing order", "orderID", getNextHighPriorityReadyOrder.OrderID)
+
+	select {
+	case u.orderCreatedSignal <- struct{}{}:
+		// Signal sent successfully, worker will process the order
+		logger.Info("Signal sent to worker to process order", "orderID", getNextHighPriorityReadyOrder.OrderID)
+	default:
+		// If the channel is full, we simply don't send the signal to avoid deadlock
+		// and continue with the execution.
+		logger.Warn("Order creation signal channel full, no signal sent", "orderID", getNextHighPriorityReadyOrder.OrderID)
+	}
 
 	// Lock the order optimistically
 	lockOrderOptimisticRepositoryRequest := dto.LockOrderOptimisticRepositoryRequest{
