@@ -4,21 +4,22 @@ import (
 	"context"
 	"time"
 
+	"github.com/seyedmo30/order_management/internal/config"
 	"github.com/seyedmo30/order_management/pkg"
 )
 
 type processUseCase struct {
+	config config.App
 }
 
-func NewProcessUseCase() *processUseCase {
-
-	return &processUseCase{}
+func NewProcessUseCase(config config.App) *processUseCase {
+	return &processUseCase{config: config}
 }
 
 // ProcessOrder simulates a process that uses a context timeout and processes for a given time.
 func (u *processUseCase) ProcessOrder(ctx context.Context, processingTime int) (status string, err error) {
-	// Create a context with a 5-second timeout
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	timeout := u.config.OrderProcessTimeout
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
 	defer cancel() // Ensure the context is canceled to release resources
 
 	// Create a timer for the processing time
@@ -31,7 +32,7 @@ func (u *processUseCase) ProcessOrder(ctx context.Context, processingTime int) (
 		return pkg.StatusOrderManagementFailed, nil
 	case <-processingTimer.C:
 		// Processing finished within the context deadline
-		if processingTime > 5 {
+		if processingTime > timeout {
 			return pkg.StatusOrderManagementFailed, nil
 		}
 		return pkg.StatusOrderManagementProcessed, nil

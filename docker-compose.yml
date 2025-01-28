@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8099:8080"
+    environment:
+      DB_LOG_LEVEL: INFO
+      SERVICE_WORKER_COUNT: 10
+      SERVICE_ORDER_PROCESS_TIMEOUT: 5
+      SERVICE_REPORT_INTERVAL: 2

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/seyedmo30/order_management/internal/config"
 	"github.com/seyedmo30/order_management/internal/dto"
 	"github.com/seyedmo30/order_management/internal/interfaces"
 	"github.com/seyedmo30/order_management/pkg"
@@ -19,6 +20,7 @@ var logger = pkg.GetLogger()
 // orderUseCase is the concrete implementation of the OrderUseCase interface.
 // It is responsible for creating orders and triggering the processing worker through a signal.
 type orderUseCase struct {
+	config             config.App
 	repo               interfaces.OrderRepository
 	process            interfaces.Process
 	orderCreatedSignal chan struct{} // Signal to notify worker when an order is created
@@ -26,13 +28,13 @@ type orderUseCase struct {
 
 // NewOrderUseCase creates a new instance of orderUseCase.
 // It initializes the order repository and the signal channel for worker triggering.
-func NewOrderUseCase(repo interfaces.OrderRepository, process interfaces.Process) *orderUseCase {
+func NewOrderUseCase(config config.App, repo interfaces.OrderRepository, process interfaces.Process) *orderUseCase {
 	// Create a buffered channel to send a signal when an order is created.
 	// This acts as an "observer" to trigger the worker to process the newly created order.
 	orderCreatedSignal := make(chan struct{}, 1)
 
 	logger.Info("NewOrderUseCase instance created")
-	return &orderUseCase{repo: repo, orderCreatedSignal: orderCreatedSignal, process: process}
+	return &orderUseCase{config: config, repo: repo, orderCreatedSignal: orderCreatedSignal, process: process}
 }
 
 // CreateOrder processes the order and queues it.
@@ -75,7 +77,7 @@ func (u *orderUseCase) CreateOrder(ctx context.Context, req dto.CreateOrderUseca
 
 // ProcessOrder handles worker creation and processing of orders.
 func (u *orderUseCase) ProcessOrder(ctx context.Context) error {
-	workerCount := 5 // Number of workers
+	workerCount := u.config.WorkerCount
 	var wg sync.WaitGroup
 	wg.Add(workerCount)
 
@@ -112,7 +114,8 @@ func (u *orderUseCase) ProcessOrder(ctx context.Context) error {
 
 // ListAggregateOrderReport logs the order status counts every 2 seconds.
 func (u *orderUseCase) ListAggregateOrderReport(ctx context.Context) error {
-	ticker := time.NewTicker(2 * time.Second)
+	reportInterval := u.config.ReportInterval
+	ticker := time.NewTicker(time.Duration(reportInterval) * time.Second)
 	defer ticker.Stop()
 
 	// Loop that runs every 2 seconds to log order status counts

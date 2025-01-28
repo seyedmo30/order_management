@@ -17,16 +17,14 @@ type App struct {
 
 // DatabaseConfig contains the database connection details.
 type DatabaseConfig struct {
-	Host     string `env:"DB_HOST"`
-	Port     string `env:"DB_PORT"`
-	User     string `env:"DB_USER"`
-	Password string `env:"DB_PASSWORD"`
-	Name     string `env:"DB_NAME"`
+	LogLevel string `env:"DB_LOG_LEVEL" envDefault:"INFO"`
 }
 
 // ServiceConfig contains application-specific settings.
 type ServiceConfig struct {
-	Port string `env:"SERVICE_PORT" envDefault:"8089"`
+	ReportInterval      int `env:"SERVICE_REPORT_INTERVAL" envDefault:"2"`
+	WorkerCount         int `env:"SERVICE_WORKER_COUNT" envDefault:"5"`
+	OrderProcessTimeout int `env:"SERVICE_ORDER_PROCESS_TIMEOUT" envDefault:"5"`
 }
 
 // Load initializes and loads the configuration from environment variables.

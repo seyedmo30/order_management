@@ -20,9 +20,9 @@ func main() {
 	// Initialize repository
 	repo := repository.NewOrderManagementRepository(cfg.DatabaseConfig)
 
-	process := process.NewProcessUseCase()
+	process := process.NewProcessUseCase(cfg)
 
-	usecase := usecase.NewOrderUseCase(repo, process)
+	usecase := usecase.NewOrderUseCase(cfg, repo, process)
 
 	// Start the order processing in a background worker (goroutine)
 	go func() {
@@ -48,7 +48,6 @@ func main() {
 
 	// Register routes
 	http.RegisterRoutes(e, orderHandler)
-
 	// Start the server
-	log.Fatal(e.Start(":" + (cfg.ServiceConfig.Port)))
+	log.Fatal(e.Start(":8080"))
 }

@@ -57,11 +57,20 @@ func SetupDB(config config.DatabaseConfig) (*gorm.DB, error) {
 	if err := sqlDb.Ping(); err != nil {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
+	logMode := logger.Info
+	switch config.LogLevel {
+	case "INFO":
+		logMode = logger.Info
+	case "ERROR":
+		logMode = logger.Error
+	case "WARNING":
+		logMode = logger.Warn
 
+	}
 	// Initialize GORM with the SQLite connection
 	db, err := gorm.Open(sqlite.New(sqlite.Config{Conn: sqlDb}), &gorm.Config{
 		PrepareStmt: true,
-		Logger:      logger.Default.LogMode(logger.Info),
+		Logger:      logger.Default.LogMode(logMode),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to open GORM connection: %w", err)
