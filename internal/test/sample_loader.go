@@ -21,9 +21,10 @@ type SampleData struct {
 }
 
 type RepositoryData struct {
-	CreatOrderRepositoryRequest      dto.CreatOrderRepositoryRequest
-	GetOrderByIDRepositoryResponse   string
-	UpdateOrderByIDRepositoryRequest dto.UpdateOrderByIDRepositoryRequest
+	CreatOrderRepositoryRequest          dto.CreatOrderRepositoryRequest
+	GetOrderByIDRepositoryResponse       string
+	UpdateOrderByIDRepositoryRequest     dto.UpdateOrderByIDRepositoryRequest
+	LockOrderOptimisticRepositoryRequest dto.LockOrderOptimisticRepositoryRequest
 }
 
 var sampleData SampleData

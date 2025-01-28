@@ -8,6 +8,10 @@ type UpdateOrderByIDRepositoryRequest struct {
 	BaseOrder
 }
 
+type LockOrderOptimisticRepositoryRequest struct {
+	BaseOrder
+}
+
 type GetOrderByIDRepositoryResponse struct {
 	BaseOrder
 }

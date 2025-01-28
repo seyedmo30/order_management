@@ -78,11 +78,9 @@ func (p *RepositoryTestSuit) Test2GetNextHighPriorityReadyOrderAndLock() {
 
 	p.NoError(err)
 
-	fmt.Printf("%+v \n", res)
+	lockOrderOptimisticRepositoryRequest := dto.LockOrderOptimisticRepositoryRequest{BaseOrder: res.BaseOrder}
 
-	updateOrderByIDRepositoryRequest := dto.UpdateOrderByIDRepositoryRequest{BaseOrder: res.BaseOrder}
-
-	err = p.repositoryService.LockOrderOptimistic(p.ctx, updateOrderByIDRepositoryRequest)
+	err = p.repositoryService.LockOrderOptimistic(p.ctx, lockOrderOptimisticRepositoryRequest)
 	p.NoError(err)
 
 }
@@ -99,8 +97,6 @@ func (p *RepositoryTestSuit) Test3UpdateOrderByID() {
 
 }
 
-
-
 func (p *RepositoryTestSuit) Test4ListAggregateOrderReport() {
 
 	res, err := p.repositoryService.ListAggregateOrderReport(p.ctx)
@@ -109,7 +105,6 @@ func (p *RepositoryTestSuit) Test4ListAggregateOrderReport() {
 
 	fmt.Printf("%+v \n", res)
 }
-
 
 func (p *RepositoryTestSuit) TestFinalGetOrderByID() {
 	sm, err := GetSampleData()
@@ -124,4 +119,3 @@ func (p *RepositoryTestSuit) TestFinalGetOrderByID() {
 	fmt.Println(res)
 
 }
-

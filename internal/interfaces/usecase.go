@@ -10,4 +10,5 @@ import (
 type OrderUseCase interface {
 	CreateOrder(ctx context.Context, params dto.CreateOrderUsecaseRequest) error
 	ProcessOrder(ctx context.Context) error
+	ListAggregateOrderReport(ctx context.Context) error
 }

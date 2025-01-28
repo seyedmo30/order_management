@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -14,13 +15,31 @@ import (
 func main() {
 	// Load configuration
 	cfg := config.Load()
+	ctx := context.Background()
 
 	// Initialize repository
 	repo := repository.NewOrderManagementRepository(cfg.DatabaseConfig)
 
 	process := process.NewProcessUseCase()
 
-	usecase := usecase.NewOrderUseCase(repo,process)
+	usecase := usecase.NewOrderUseCase(repo, process)
+
+	// Start the order processing in a background worker (goroutine)
+	go func() {
+
+		if err := usecase.ListAggregateOrderReport(ctx); err != nil {
+			log.Printf("Error in ListAggregateOrderReport: %v", err)
+		}
+
+	}()
+	go func() {
+
+		if err := usecase.ProcessOrder(ctx); err != nil {
+			log.Fatalf("Error while processing orders: %v", err)
+		}
+
+	}()
+
 	// Set up Echo instance
 	e := echo.New()
 

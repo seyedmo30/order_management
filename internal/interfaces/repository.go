@@ -19,5 +19,5 @@ type OrderRepository interface {
 
 	ListAggregateOrderReport(ctx context.Context) (counts map[string]int, err error)
 
-	LockOrderOptimistic(ctx context.Context, params dto.UpdateOrderByIDRepositoryRequest) (err error)
+	LockOrderOptimistic(ctx context.Context, params dto.LockOrderOptimisticRepositoryRequest) (err error)
 }

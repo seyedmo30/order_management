@@ -24,13 +24,29 @@ func (r *orderManagementRepository) GetOrderByID(ctx context.Context, orderID st
 }
 
 func (r *orderManagementRepository) UpdateOrderByID(ctx context.Context, params dto.UpdateOrderByIDRepositoryRequest) (err error) {
-	err = db.WithContext(ctx).
+	result := db.WithContext(ctx).
 		Table("orders").
-		Updates(&params).Error
+		Where("order_id = ?", params.OrderID).
+		Updates(&params)
+
+	if err := result.Error; err != nil {
+		return err
+	}
+
+	if result.RowsAffected == 0 {
+
+		err = &pkg.ErrorCustom{
+			Code:    404,
+			Message: pkg.NotFoundRepositoryMessage,
+		}
+
+		return err
+	}
+
 	return
 }
 
-func (r *orderManagementRepository) LockOrderOptimistic(ctx context.Context, params dto.UpdateOrderByIDRepositoryRequest) (err error) {
+func (r *orderManagementRepository) LockOrderOptimistic(ctx context.Context, params dto.LockOrderOptimisticRepositoryRequest) (err error) {
 	result := db.WithContext(ctx).
 		Table("orders").
 		Where("lock = ?", false).
