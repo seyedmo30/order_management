@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/seyedmo30/order_management/internal/config"
 	"github.com/seyedmo30/order_management/internal/delivery/http"
+	"github.com/seyedmo30/order_management/internal/process"
 	"github.com/seyedmo30/order_management/internal/repository"
 	"github.com/seyedmo30/order_management/internal/usecase"
 )
@@ -17,7 +18,9 @@ func main() {
 	// Initialize repository
 	repo := repository.NewOrderManagementRepository(cfg.DatabaseConfig)
 
-	usecase := usecase.NewOrderUseCase(repo)
+	process := process.NewProcessUseCase()
+
+	usecase := usecase.NewOrderUseCase(repo,process)
 	// Set up Echo instance
 	e := echo.New()
 

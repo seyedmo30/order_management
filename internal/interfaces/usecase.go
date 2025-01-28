@@ -9,4 +9,5 @@ import (
 // OrderUseCase defines the methods that the use case layer will implement.
 type OrderUseCase interface {
 	CreateOrder(ctx context.Context, params dto.CreateOrderUsecaseRequest) error
+	ProcessOrder(ctx context.Context) error
 }
