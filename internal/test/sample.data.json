@@ -13,12 +13,14 @@
             "lock": false
           },
 
-          "GetOrderByIDRepositoryResponse" : "order-001",
+          "GetOrderByIDRepositoryResponse" : "12345",
 
 
 
           "UpdateOrderByIDRepositoryRequest":{
             "id": "order-001",
+            "order_id": "12345",
+
             "status": "Success"
           }
 
