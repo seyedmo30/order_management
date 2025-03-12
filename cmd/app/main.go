@@ -59,5 +59,5 @@ func main() {
 	// Register routes
 	http.RegisterRoutes(e, orderHandler)
 	// Start the server
-	log.Fatal(e.Start(":8099"))
+	log.Fatal(e.Start(":8080"))
 }
